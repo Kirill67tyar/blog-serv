@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ object }}
+{% endblock %}
+
+{% block content %}
+<h1>{{ object }}</h1>
+<p class="date">
+    Published {{ object.publish }} by {{ object.author }}
+</p>
+{{ object.body|linebreaks }}
+<p>
+    <a href="{% url 'blog:share' object.pk %}">
+        Share this post
+    </a>
+</p>
+
+{% endblock %}
