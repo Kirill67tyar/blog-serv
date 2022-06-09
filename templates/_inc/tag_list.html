@@ -1,0 +1,10 @@
+<p class="tags">
+
+    Tags:
+    {% for tag in object.tags.all %}
+    <a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>
+    {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+
+

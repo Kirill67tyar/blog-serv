@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
+    'django.contrib.sites',  # приложение, которое отвечает за карту сайта
+    'django.contrib.sitemaps',  # приложение, которое отвечает за карту сайта
 ]
 
 MIDDLEWARE = [
@@ -137,7 +139,6 @@ STATIC_ROOT = BASE_DIR.joinpath('staticfiles')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

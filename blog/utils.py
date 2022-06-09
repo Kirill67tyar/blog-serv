@@ -115,6 +115,7 @@ def delimiter(sym='-+', quant=50):
 
 # потом можно улучшить чтобы передавался также **kwargs, и тогда выводился
 # также имя переменной и её значенте
+# поможет setattr
 def console(*args, delimetr='- ', length=50):
     print('\n', '=' * 100)
     for elem in args:

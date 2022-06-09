@@ -22,6 +22,17 @@ class PublishedManager(models.Manager):
 
 
 class Post(models.Model):
+    """
+    model fields:
+        title
+        slug
+        author
+        body
+        publish
+        created
+        updated
+        status
+    """
     STATUS_CHOICE = (
         ('draft', 'Draft',),
         ('publish', 'Published',),
@@ -63,6 +74,8 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-publish',)
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Посты'
 
     def __str__(self):
         return self.title
@@ -81,14 +94,59 @@ class Post(models.Model):
         })
 
 
-"""
-model fields:
-    title
-    slug
-    author
-    body
-    publish
-    created
-    updated
-    status
-"""
+class Comment(models.Model):
+    post = models.ForeignKey(
+        to='blog.Post', on_delete=models.CASCADE,
+        related_name='comments', verbose_name='Пост'
+    )
+    author = models.ForeignKey(
+        to=User, on_delete=models.SET_NULL, null=True,
+        related_name='comments', blank=True, verbose_name='Автор'
+    )
+    body = models.CharField(
+        max_length=255, verbose_name='Содержание комментария'
+    )
+    created = models.DateTimeField(
+        auto_now_add=True, verbose_name='Создан'
+    )
+    updated = models.DateTimeField(
+        auto_now=True, verbose_name='Изменён'
+    )
+    active = models.BooleanField(
+        default=True, verbose_name='Состояние'
+    )
+
+    def __str__(self):
+        return f'Comment by {self.author.username}, on {self.post} ({self.created})'
+
+    class Meta:
+        ordering = ('-created',)
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Название тега')
+    slug = models.CharField(max_length=50, verbose_name='Slug тега')
+    post = models.ManyToManyField(to='blog.Post', related_name='tags')
+
+    def __str__(self):
+        return f'{self.name}'
+
+    def __repr__(self):
+        return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = from_cyrilic_to_eng(str(self.name))
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('blog:list_by_tag', kwargs={
+            'slug_tag': self.slug,
+        })
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
