@@ -33,6 +33,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# для sitemaps
+SITE_ID = 1
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
