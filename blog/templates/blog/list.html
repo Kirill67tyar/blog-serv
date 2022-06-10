@@ -8,6 +8,10 @@
 {% if tag %}
 <h2>Post tagged with "{{ tag.name }}"</h2>
 {% endif %}
+
+{% if query %}
+<h2>Post containing "{{ query }}"</h2>
+{% endif %}
 {% for post in page_obj %}
 
 <h2>

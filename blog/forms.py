@@ -16,3 +16,10 @@ class CommentModelForm(forms.ModelForm):
         fields = ('body',)
         # или
         # exclude = ('post', 'author', 'created', 'updated', 'active',)
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(
+        max_length=255,
+        required=False,
+    )

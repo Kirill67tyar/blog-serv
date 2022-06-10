@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'django.contrib.sites',  # приложение, которое отвечает за карту сайта
     'django.contrib.sitemaps',  # приложение, которое отвечает за карту сайта
+    'django.contrib.postgres',  # приложение, которое отвечает postgresql
 ]
 
 MIDDLEWARE = [
@@ -81,12 +82,28 @@ WSGI_APPLICATION = 'my_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+# # -----------------------------------------------------------DB SQLite
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+# # -----------------------------------------------------------DB SQLite
+
+# -----------------------------------------------------------DB postgres
+PASSWORD = os.environ.get('PASSWORD')
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'blog',
+        'USER': 'postgres',
+        'PASSWORD': '10789007qw_alskdjfhg',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
+# -----------------------------------------------------------DB postgres
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

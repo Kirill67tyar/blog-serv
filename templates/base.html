@@ -9,12 +9,20 @@
 </head>
 <body>
 <div id="content">
+
     {% block content %}
     {% endblock %}
+    <form action="{% url 'blog:list' %}" method="get">
+        <input type="text" name="query" placeholder="enter here">
+        <input type="submit" value="Search">
+    </form>
 </div>
 <div id="sidebar">
-    <h2>Blog</h2>
+
+
+    <h2><a href="{% url 'blog:list' %}">Blog</a></h2>
     <p>This is my blog. I've written {% total_posts %} posts so far</p>
+    <p><a href="{% url 'blog:post_feed' %}">Subscribe to my RSS feed</a></p>
     <h3>Latest posts</h3>
     {% show_latest_posts 3 %}
     <h3>Most commented posts</h3>
@@ -29,7 +37,9 @@
     </ul>
     <a href="{% url 'blog:list' %}"><h2>back</h2></a>
 
+
 </div>
+
 
 </body>
 </html>

@@ -2,6 +2,11 @@ from django.conf import settings
 from django.db.models import Count
 from django.core.mail import send_mail
 from django.views.generic import ListView
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchQuery,  # стемминг
+    SearchRank,  # ранжирование
+)
 from django.shortcuts import (
     render, get_object_or_404,
     redirect, reverse, HttpResponse,
@@ -11,7 +16,7 @@ from django.core.paginator import (
 )
 
 from blog.models import Post, Tag
-from blog.forms import EmailForm, CommentModelForm
+from blog.forms import EmailForm, CommentModelForm, SearchForm
 from blog.utils import get_object_or_null
 
 # ---------------------------------- analizetools
@@ -78,6 +83,12 @@ def post_list_view(request, slug_tag=None):
     if slug_tag:
         tag = get_object_or_404(Tag, slug=slug_tag)
         post_list = post_list.filter(tags__in=[tag])
+    query = request.GET.get('query')
+    if query:
+        form = SearchForm(query)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            post_list = post_list.annotate(search=SearchVector('title', 'body')).filter(search=query)
     paginator_ = Paginator(object_list=post_list, per_page=2)
     num_page = request.GET.get('page')
     try:
@@ -90,7 +101,10 @@ def post_list_view(request, slug_tag=None):
         'page_obj': page_obj,
         'page': num_page,
         'tag': tag,
+        'query': query,
     }
+    if query:
+        context_['query'] = query
     return render(request=request,
                   template_name='blog/list.html',
                   context=context_)
@@ -115,6 +129,24 @@ class PostListView(ListView):
         tag = self.tag_in_path()
         if tag:
             return qs.filter(tags__in=[tag]).prefetch_related('tags')
+        query = self.request.GET.get('query')
+        if query:
+            form = SearchForm(self.request.GET)
+            if form.is_valid():
+                query = form.cleaned_data['query']
+                # lookup от postgresql
+                # qs = qs.annotate(search=SearchVector('title', 'body')).filter(search=query)
+
+                # или с стеммингом или ранжированием (от postgresql)
+                # search_vector = SearchVector('title', 'body')
+
+                # совпадения в заголовке в большем приоритете, чем совпадения в содержимом
+                search_vector = SearchVector('title', weight='A') + SearchVector('body', weight='B')
+
+                search_query = SearchQuery(query)
+                rank = SearchRank(search_vector, search_query)
+                qs = qs.annotate(search=search_vector, rank=rank).filter(rank__gte=0.3).order_by('-rank')
+
         return qs
 
     def get_context_data(self, *args, **kwargs):
@@ -122,6 +154,9 @@ class PostListView(ListView):
         tag = self.tag_in_path()
         if tag:
             ctx['tag'] = tag
+        query = self.request.GET.get('query')
+        if query:
+            ctx['query'] = query
         return ctx
 
     # # а здесь ничего не поменяется, т.к. ListView при атрибуте paginate_by
